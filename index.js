@@ -1,4 +1,5 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -13,12 +14,27 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-client.connect((err) => {
-  const collection = client.db("test").collection("devices");
-  console.log("Db connection");
-  // perform actions on the collection object
-  client.close();
-});
+const run = async () => {
+  await client.connect();
+  const inventoriesCollection = client
+    .db("inventoriesDb")
+    .collection("inventories");
+  try {
+    app.get("/inventories", async (req, res) => {
+      const query = {};
+      const result = await inventoriesCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/inventory/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await inventoriesCollection.findOne(query);
+      res.send(result);
+    });
+  } finally {
+  }
+};
+run().catch(console.dir);
 
 app.get("/", (req, res) => {
   res.send("hello boss");
@@ -27,3 +43,6 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`Listening Port`, port);
 });
+
+/*
+ */
