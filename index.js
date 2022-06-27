@@ -41,6 +41,12 @@ const run = async () => {
       const result = await inventoriesCollection.find(query).toArray();
       res.send(result);
     });
+    app.delete("/inventory/delete/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await inventoriesCollection.deleteOne(query);
+      res.send(result);
+    });
     /* app.get("/inventory/quantity/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
