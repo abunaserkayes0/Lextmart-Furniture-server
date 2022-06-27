@@ -31,6 +31,31 @@ const run = async () => {
       const result = await inventoriesCollection.findOne(query);
       res.send(result);
     });
+    app.post("/inventory/add", async (req, res) => {
+      const doc = req.body;
+      const result = await inventoriesCollection.insertOne(doc);
+      res.send(result);
+    });
+    app.get("/inventory/add", async (req, res) => {
+      const query = {};
+      const result = await inventoriesCollection.find(query).toArray();
+      res.send(result);
+    });
+    /* app.get("/inventory/quantity/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await inventoriesCollection.findOne(query);
+      const newUpdatedStep = await inventoriesCollection.findOneAndUpdate(
+        query,
+        {
+          $set: {
+            quantity: result.quantity - 1,
+          },
+        },
+        { new: true }
+      );
+      res.send(result);
+    }); */
   } finally {
   }
 };
