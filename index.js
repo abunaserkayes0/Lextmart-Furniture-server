@@ -41,27 +41,29 @@ const run = async () => {
       const result = await inventoriesCollection.find(query).toArray();
       res.send(result);
     });
-    app.delete("/inventory/delete/:id", async (req, res) => {
+    app.delete("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await inventoriesCollection.deleteOne(query);
       res.send(result);
     });
-    /* app.get("/inventory/quantity/:id", async (req, res) => {
+    app.put("/inventory/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await inventoriesCollection.findOne(query);
-      const newUpdatedStep = await inventoriesCollection.findOneAndUpdate(
-        query,
-        {
-          $set: {
-            quantity: result.quantity - 1,
-          },
+      const query = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          quantity: query.finalQuantity,
         },
-        { new: true }
+      };
+      const result = await inventoriesCollection.updateOne(
+        filter,
+        updateDoc,
+        options
       );
       res.send(result);
-    }); */
+    });
   } finally {
   }
 };
