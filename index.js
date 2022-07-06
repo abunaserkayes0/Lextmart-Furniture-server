@@ -19,6 +19,7 @@ const run = async () => {
   const inventoriesCollection = client
     .db("inventoriesDb")
     .collection("inventories");
+  const myItemsCollection = client.db("myItemsDb").collection("myItems");
   try {
     app.get("/inventories", async (req, res) => {
       const query = {};
@@ -62,6 +63,23 @@ const run = async () => {
         updateDoc,
         options
       );
+      res.send(result);
+    });
+    app.post("/myItems", async (req, res) => {
+      const query = req.body.myItem;
+      const result = await myItemsCollection.insertOne(query);
+      res.send(result);
+    });
+    app.get("/myItems", async (req, res) => {
+      const email = req.query.email;
+      const query = { email };
+      const result = await myItemsCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.delete("/myItem/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await myItemsCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
