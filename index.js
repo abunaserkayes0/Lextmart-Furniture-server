@@ -6,23 +6,9 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors({ origin: "https://lexmart-furniture.web.app/" }));
+app.use(cors());
 app.use(express.json());
 
-/* const verifyToken = (req, res, next) => {
-  const authorizationHeader = req.headers.authorization;
-  if (!authorizationHeader) {
-    return res.status(401).send({ message: "Unauthorize Access" });
-  }
-  const token = authorizationHeader.split(" ")[1];
-  jwt.verify(token, process.env.SECRET_KEY_TOKEN, (err, decoded) => {
-    if (err) {
-      return res.status(403).send({ message: "Forbidden Access" });
-    }
-    req.decoded = decoded;
-  });
-  next();
-}; */
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ywizv1d.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -96,16 +82,10 @@ const run = async () => {
       res.send(result);
     });
     app.get("/myItems", async (req, res) => {
-      // const decodedEmail = req.decoded.email;
       const email = req.query.email;
       const query = { email };
       const result = await myItemsCollection.find(query).toArray();
       res.send(result);
-      /*  if (email === decodedEmail) {
-        
-      } else {
-        res.status(403).send({ message: "Forbidden Access" });
-      } */
     });
     app.delete("/myItem/:id", async (req, res) => {
       const id = req.params.id;
