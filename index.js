@@ -1,12 +1,28 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+const verifyToken = (req, res, next) => {
+  const authorizationHeader = req.headers.authorization;
+  if (!authorizationHeader) {
+    return res.status(401).send({ message: "Unauthorize Access" });
+  }
+  const token = authorizationHeader.split(" ")[1];
+  jwt.verify(token, process.env.SECRET_KEY_TOKEN, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ message: "Forbidden Access" });
+    }
+    req.decoded = decoded;
+  });
+  next();
+};
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ywizv1d.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -21,6 +37,15 @@ const run = async () => {
     .collection("inventories");
   const myItemsCollection = client.db("myItemsDb").collection("myItems");
   try {
+    /* Auth */
+    app.post("/signIn", async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.SECRET_KEY_TOKEN, {
+        expiresIn: "1d",
+      });
+      res.send({ token });
+    });
+    /* API */
     app.get("/inventories", async (req, res) => {
       const query = {};
       const result = await inventoriesCollection.find(query).toArray();
@@ -70,11 +95,16 @@ const run = async () => {
       const result = await myItemsCollection.insertOne(query);
       res.send(result);
     });
-    app.get("/myItems", async (req, res) => {
+    app.get("/myItems", verifyToken, async (req, res) => {
+      const decodedEmail = req.decoded.email;
       const email = req.query.email;
-      const query = { email };
-      const result = await myItemsCollection.find(query).toArray();
-      res.send(result);
+      if (email === decodedEmail) {
+        const query = { email };
+        const result = await myItemsCollection.find(query).toArray();
+        res.send(result);
+      } else {
+        res.status(403).send({ message: "Forbidden Access" });
+      }
     });
     app.delete("/myItem/:id", async (req, res) => {
       const id = req.params.id;
