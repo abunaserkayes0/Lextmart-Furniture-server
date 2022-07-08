@@ -9,7 +9,6 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ywizv1d.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -32,33 +31,39 @@ const run = async () => {
       res.send({ token });
     });
     /* API */
+    // all inventories
     app.get("/inventories", async (req, res) => {
       const query = {};
       const result = await inventoriesCollection.find(query).toArray();
       res.send(result);
     });
+    // single inventory
     app.get("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await inventoriesCollection.findOne(query);
       res.send(result);
     });
+    // add inventory
     app.post("/inventory/add", async (req, res) => {
       const doc = req.body;
       const result = await inventoriesCollection.insertOne(doc);
       res.send(result);
     });
+    // find inventory
     app.get("/inventory/add", async (req, res) => {
       const query = {};
       const result = await inventoriesCollection.find(query).toArray();
       res.send(result);
     });
+    // delete items
     app.delete("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await inventoriesCollection.deleteOne(query);
       res.send(result);
     });
+    // Update Quantity
     app.put("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const query = req.body;
@@ -76,17 +81,20 @@ const run = async () => {
       );
       res.send(result);
     });
+    // You can add personal items
     app.post("/myItems", async (req, res) => {
       const query = req.body.myItem;
       const result = await myItemsCollection.insertOne(query);
       res.send(result);
     });
+    // Find your Items
     app.get("/myItems", async (req, res) => {
       const email = req.query.email;
       const query = { email };
       const result = await myItemsCollection.find(query).toArray();
       res.send(result);
     });
+    // delete your Items
     app.delete("/myItem/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
