@@ -6,8 +6,8 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
 
+app.use(cors({ origin: "https://lexmart-furniture.web.app/" }));
 app.use(express.json());
-app.use(cors({ origin: "https://murmuring-basin-78335.herokuapp.com/" }));
 
 /* const verifyToken = (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
