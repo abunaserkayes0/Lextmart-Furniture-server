@@ -2,12 +2,14 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(cors());
 
-const verifyToken = (req, res, next) => {
+/* const verifyToken = (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
   if (!authorizationHeader) {
     return res.status(401).send({ message: "Unauthorize Access" });
@@ -20,7 +22,7 @@ const verifyToken = (req, res, next) => {
     req.decoded = decoded;
   });
   next();
-};
+}; */
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ywizv1d.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -93,16 +95,17 @@ const run = async () => {
       const result = await myItemsCollection.insertOne(query);
       res.send(result);
     });
-    app.get("/myItems", verifyToken, async (req, res) => {
-      const decodedEmail = req.decoded.email;
+    app.get("/myItems", async (req, res) => {
+      // const decodedEmail = req.decoded.email;
       const email = req.query.email;
-      if (email === decodedEmail) {
-        const query = { email };
-        const result = await myItemsCollection.find(query).toArray();
-        res.send(result);
+      const query = { email };
+      const result = await myItemsCollection.find(query).toArray();
+      res.send(result);
+      /*  if (email === decodedEmail) {
+        
       } else {
         res.status(403).send({ message: "Forbidden Access" });
-      }
+      } */
     });
     app.delete("/myItem/:id", async (req, res) => {
       const id = req.params.id;
