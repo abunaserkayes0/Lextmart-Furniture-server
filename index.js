@@ -2,17 +2,9 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
 
-const corsOptions = {
-  origin: "*",
-  credentials: true,
-  optionSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
 app.use(express.json());
 
 const verifyToken = (req, res, next) => {
